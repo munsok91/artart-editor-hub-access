@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="robots" content="noindex,nofollow,noarchive">
   <meta name="referrer" content="no-referrer">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline'; connect-src https://api.github.com https://*.trycloudflare.com; img-src data:; base-uri 'none'; form-action 'none'; frame-ancestors 'none'">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline'; connect-src 'self' https://*.trycloudflare.com; img-src data:; base-uri 'none'; form-action 'none'; frame-ancestors 'none'">
   <title>ARTART 에디터 허브</title>
   <style>
     :root { color-scheme: light; --ink:#11120f; --paper:#f3f1e9; --lime:#d9ff62; --muted:#73756d; --line:rgba(17,18,15,.13); }
@@ -48,7 +48,6 @@
   <script>
     (() => {
       'use strict';
-      const POINTER = 'https://api.github.com/repos/munsok91/artart-editor-hub-access/contents/target.json?ref=main';
       const VALID = /^https:\/\/[a-z0-9-]+\.trycloudflare\.com$/;
       const dot = document.getElementById('dot');
       const state = document.getElementById('state');
@@ -66,19 +65,12 @@
         retry.disabled = kind === 'checking' || kind === 'online';
       }
 
-      function decodeBase64(value) {
-        const bytes = Uint8Array.from(atob(value.replace(/\s/g, '')), char => char.charCodeAt(0));
-        return new TextDecoder().decode(bytes);
-      }
-
       async function latestTarget() {
-        const response = await fetch(`${POINTER}&t=${Date.now()}`, {
+        const response = await fetch(`./target.json?t=${Date.now()}`, {
           cache: 'no-store',
-          headers: { Accept: 'application/vnd.github+json' },
         });
         if (!response.ok) throw new Error(`pointer ${response.status}`);
-        const file = await response.json();
-        const target = JSON.parse(decodeBase64(file.content || ''));
+        const target = await response.json();
         if (!target || !VALID.test(target.url || '')) throw new Error('invalid target');
         return target;
       }
@@ -123,4 +115,3 @@
   </script>
 </body>
 </html>
-
